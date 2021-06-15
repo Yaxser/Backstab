@@ -1,0 +1,3 @@
+#include "resource.h"
+
+RES_PROCEXP_BINARY RCDATA "..\\resources\\PROCEXP.sys"
