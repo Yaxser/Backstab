@@ -52,6 +52,6 @@ While the tool purpose is listing and killing handles, the opportunities are vas
 #### Credits
 - Author: Yasser Alhazmi (@Yas_o_h)
 - Pavel Yosifovich: [(@Zodiacon)](https://twitter.com/zodiacon) mentioned to us during his awesome [Windows Internals Course](https://scorpiosoftware.net/category/windows-internals/) that kernel drivers like ProcExp might cause too much unintended damage
-- Cornelis de Plaa and Outflank Team: for [Ps-Tools](https://github.com/outflanknl/Ps-Tools/blob/master/README.md) and their outstanding Github repos, always informative
+- Cornelis de Plaa [@Cn33liz](https://twitter.com/Cneelis) and Outflank Team [@OutflankNL](https://twitter.com/OutflankNL): for [Ps-Tools](https://github.com/outflanknl/Ps-Tools/blob/master/README.md) and their outstanding Github repos, always informative
 - Mark Russinovich: for ProcExp, and all Sysinternals tools!
 
