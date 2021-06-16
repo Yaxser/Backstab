@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
 	}
 	else if (isUsingSpecificHandle)
 	{
-		ProcExpKillHandle(dwPid, szHandleToClose);
+		ProcExpKillHandle(dwPid,  strtol(szHandleToClose, 0, 16));
 	}
 	else {
 		printf("Please select an operation\n");
