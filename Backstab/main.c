@@ -12,6 +12,49 @@
 #define INPUT_ERROR_TOO_MANY_PROCESSES 2
 
 
+BOOL IsElevated() {
+	BOOL fRet = FALSE;
+	HANDLE hToken = NULL;
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+		TOKEN_ELEVATION Elevation = { 0 };
+		DWORD cbSize = sizeof(TOKEN_ELEVATION);
+		if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize)) {
+			fRet = Elevation.TokenIsElevated;
+		}
+	}
+	if (hToken) {
+		CloseHandle(hToken);
+	}
+	return fRet;
+}
+
+BOOL SetDebugPrivilege() {
+	HANDLE hToken = NULL;
+	TOKEN_PRIVILEGES TokenPrivileges = { 0 };
+
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY | TOKEN_ADJUST_PRIVILEGES, &hToken)) {
+		return FALSE;
+	}
+
+	TokenPrivileges.PrivilegeCount = 1;
+	TokenPrivileges.Privileges[0].Attributes = TRUE ? SE_PRIVILEGE_ENABLED : 0;
+
+	LPWSTR lpwPriv = L"SeDebugPrivilege"; 
+	//LPWSTR lpwPriv = L"SeLoadDriverPrivilege";
+
+	if (!LookupPrivilegeValueW(NULL, (LPCWSTR)lpwPriv, &TokenPrivileges.Privileges[0].Luid)) {
+		CloseHandle(hToken);
+		return FALSE;
+	}
+
+	if (!AdjustTokenPrivileges(hToken, FALSE, &TokenPrivileges, sizeof(TOKEN_PRIVILEGES), NULL, NULL)) {
+		CloseHandle(hToken);
+		return FALSE;
+	}
+
+	CloseHandle(hToken);
+	return TRUE;
+}
 
 BOOL verifyPID(DWORD dwPID) {
 	HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwPID);
@@ -150,6 +193,12 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	if (!IsElevated()) {
+		wprintf(L"[!] You need elevated privileges to run this tool!\n");
+		exit(1);
+	}
+
+	SetDebugPrivilege();
 
 	/* input sanity checks */
 	if (!isUsingProcessName && !isUsingProcessPID)
@@ -171,13 +220,13 @@ int main(int argc, char* argv[]) {
 	if (!isUsingDifferentDriverPath)
 	{
 		 WCHAR cwd[MAX_PATH + 1];
-		 printf("no special driver dir specified, extracting to current dir\n");
+		 printf("[*] no special driver dir specified, extracting to current dir\n");
 		GetCurrentDirectoryW(MAX_PATH + 1, cwd);
 		_snwprintf_s(szDriverPath, MAX_PATH, _TRUNCATE, L"%ws\\%ws", cwd, L"PROCEXP");
 		 WriteResourceToDisk(szDriverPath);
 	}
 	else {
-		printf("extracting the drive to %ws\n", szDriverPath);
+		printf("[+] extracting the drive to %ws\n", szDriverPath);
 		WriteResourceToDisk(szDriverPath);
 	}
 
@@ -189,15 +238,23 @@ int main(int argc, char* argv[]) {
 		{
 			UnloadDriver(szDriverPath, szServiceName);
 		}
-		return Error("Could not load driver");
+		return Error("[!] Could not load driver");
 	}
+	else {
+		printf("[+] Driver loaded as %ws\n", szServiceName);
+
+	}
+
 	
 
 
 	/* connect to the loaded driver */
 	if (!ConnectToProcExpDevice()) {
 
-		return Error("Could not connect to ProcExp device");
+		return Error("[!] Could not connect to ProcExp device");
+	}
+	else {
+		printf("[+] Connected to Driver successfully\n");
 	}
 
 
@@ -205,7 +262,7 @@ int main(int argc, char* argv[]) {
 	hProtectedProcess = ProcExpOpenProtectedProcess(dwPid);
 	if (hProtectedProcess == INVALID_HANDLE_VALUE)
 	{
-		return Error("could not get handle to protected process\n");
+		return Error("[!] could not get handle to protected process\n");
 	}
 
 
