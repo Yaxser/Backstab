@@ -5,7 +5,7 @@ BOOL ConnectToProcExpDevice()
 {
 	hProcExpDevice = CreateFileA("\\\\.\\PROCEXP152", GENERIC_ALL, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (hProcExpDevice == INVALID_HANDLE_VALUE)
-		return Error("[!] Error: ConnectToProcExpDevice");
+		return Error("Error: ConnectToProcExpDevice");
 
 	return TRUE;
 }
@@ -35,7 +35,7 @@ HANDLE ProcExpOpenProtectedProcess(ULONGLONG ulPID)
 	
 	if (dwBytesReturned == 0 || !ret)
 	{
-		printf("[!] ProcExpOpenProtectedProcess.DeviceIoControl: %d\n", GetLastError());
+		printf("ProcExpOpenProtectedProcess.DeviceIoControl: %d\n", GetLastError());
 		return NULL;
 	}
 
@@ -67,7 +67,7 @@ BOOL ProcExpKillHandle(DWORD dwPID, ULONGLONG usHandle) {
 		NULL);
 
 	if (!bRet)
-		return Error("[!] ProcExpKillHandle.DeviceIoControl");
+		return Error("ProcExpKillHandle.DeviceIoControl");
 
 
 	return TRUE;
@@ -103,7 +103,7 @@ BOOL ProcExpGetObjectInformation(PROCEXP_DATA_EXCHANGE data, DWORD IOCTL, LPWSTR
 
 	bRet = DeviceIoControl(hProcExpDevice, IOCTL, (LPVOID)&data, sizeof(PROCEXP_DATA_EXCHANGE), (LPVOID)info, MAX_BUF, &dwBytesReturned, NULL);
 	if (!bRet)
-		return Error("[!] ProcExpGetObjectInformation.DeviceIoControl");
+		return Error("ProcExpGetObjectInformation.DeviceIoControl");
 
 
 	if (dwBytesReturned == 8) // 8 bytes are returned when the handle is unnamed 
