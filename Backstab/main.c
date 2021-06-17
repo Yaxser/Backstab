@@ -198,7 +198,8 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	SetDebugPrivilege();
+	// SetDebugPrivilege();  // in same cases the driver doesn't load .. I leave this here as SE_DEBUG_Privilege seems to partially solving the issue. But it's not clean to need that many privileges.
+
 
 	/* input sanity checks */
 	if (!isUsingProcessName && !isUsingProcessPID)
