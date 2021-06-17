@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (!IsElevated()) {
-		wprintf(L"[!] You need elevated privileges to run this tool!\n");
+		printf(L"[!] You need elevated privileges to run this tool!\n");
 		exit(1);
 	}
 
@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
 		{
 			UnloadDriver(szDriverPath, szServiceName);
 		}
-		return Error("[!] Could not load driver");
+		return Error("Could not load driver");
 	}
 	else {
 		printf("[+] Driver loaded as %ws\n", szServiceName);
@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
 	/* connect to the loaded driver */
 	if (!ConnectToProcExpDevice()) {
 
-		return Error("[!] Could not connect to ProcExp device");
+		return Error("Could not connect to ProcExp device");
 	}
 	else {
 		printf("[+] Connected to Driver successfully\n");
@@ -262,7 +262,7 @@ int main(int argc, char* argv[]) {
 	hProtectedProcess = ProcExpOpenProtectedProcess(dwPid);
 	if (hProtectedProcess == INVALID_HANDLE_VALUE)
 	{
-		return Error("[!] could not get handle to protected process\n");
+		return Error("could not get handle to protected process\n");
 	}
 
 
