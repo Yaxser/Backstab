@@ -73,10 +73,10 @@ int PrintInputError(DWORD dwErrorValue) {
 	switch (dwErrorValue)
 	{
 	case INPUT_ERROR_NONEXISTENT_PID:
-		printf("Either PID number or name is incorrect\n");
+		printf("\nError : Either PID number or name is incorrect\n");
 		break;
 	case INPUT_ERROR_TOO_MANY_PROCESSES:
-		printf("Either name specified has multiple instances, or you specified a name AND a PID\n");
+		printf("\nError : Either name specified has multiple instances, or you specified a name AND a PID\n");
 		break;
 	default:
 		break;
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 	WCHAR szServiceName[MAX_PATH] = L"ProcExp64";
 	WCHAR szProcessName[MAX_PATH] = {0};
 	WCHAR szDriverPath[MAX_PATH] = {0};
-	HANDLE hProtectedProcess = NULL;
+	HANDLE hProtectedProcess, hConnect = NULL;
 	
 	LPSTR szHandleToClose = NULL;
 	DWORD dwPid = 0;
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 			isUsingProcessName = TRUE;
 			bRet = GetProcessPIDFromName(charToWChar(optarg), &dwPid);
 			if (!bRet)
-				return PrintInputError(dwPid);
+				return PrintInputError(INPUT_ERROR_NONEXISTENT_PID);
 			break;
 		}
 		case 'p':
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (!IsElevated()) {
-		printf(L"[!] You need elevated privileges to run this tool!\n");
+		printf("[!] You need elevated privileges to run this tool!\n");
 		exit(1);
 	}
 
@@ -242,6 +242,7 @@ int main(int argc, char* argv[]) {
 	}
 	else {
 		printf("[+] Driver loaded as %ws\n", szServiceName);
+		isRequestingDriverUnload = TRUE;  // Set to unload the driver at the end of the operation
 
 	}
 
@@ -249,9 +250,10 @@ int main(int argc, char* argv[]) {
 
 
 	/* connect to the loaded driver */
-	if (!ConnectToProcExpDevice()) {
+	hConnect = ConnectToProcExpDevice();
+	if (hConnect == NULL) {
 
-		return Error("Could not connect to ProcExp device");
+		return Error("Error: ConnectToProcExpDevice");
 	}
 	else {
 		printf("[+] Connected to Driver successfully\n");
@@ -285,6 +287,10 @@ int main(int argc, char* argv[]) {
 	if (isRequestingDriverUnload)
 	{
 		UnloadDriver(szDriverPath, szServiceName);
+		//printf("Handle hCONNECT is %p", hConnect);
+		if (!CloseHandle(hConnect))
+			printf("Error ClosingHandle to driver file %p",hConnect);
+		DeleteResourceFromDisk(szDriverPath);
 	}
 
 	return 0;

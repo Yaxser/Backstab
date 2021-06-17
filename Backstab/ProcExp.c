@@ -1,13 +1,13 @@
 #include "ProcExp.h"
 
 
-BOOL ConnectToProcExpDevice()
+HANDLE ConnectToProcExpDevice()
 {
 	hProcExpDevice = CreateFileA("\\\\.\\PROCEXP152", GENERIC_ALL, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (hProcExpDevice == INVALID_HANDLE_VALUE)
-		return Error("Error: ConnectToProcExpDevice");
+		return NULL;
 
-	return TRUE;
+	return hProcExpDevice;
 }
 
 
@@ -89,7 +89,7 @@ BOOL PrintProtectedHandleInformation(ULONGLONG ulPID, ULONGLONG ulProtectedHandl
 
 	if (ProcExpGetObjectInformation(data, IOCTL_GET_HANDLE_NAME, szName)) {
 		ProcExpGetObjectInformation(data, IOCTL_GET_HANDLE_TYPE, szType);
-		printf("[%#x] [%ws]: %ws\n", data.ulHandle, szType + 2, szName + 2);
+		printf("[%#llu] [%ws]: %ws\n", data.ulHandle, szType + 2, szName + 2);
 	}
 
 	return TRUE;
