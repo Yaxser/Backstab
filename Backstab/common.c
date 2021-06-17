@@ -3,7 +3,7 @@
 #include "Driverloading.h"
 
 BOOL Error(LPSTR szMethod) {
-	printf("%s: %d\n", szMethod, GetLastError());
+	printf("[!] %s: %d\n", szMethod, GetLastError());
 	return FALSE;
 }
 
