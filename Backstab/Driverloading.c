@@ -156,7 +156,7 @@ BOOL DeleteResourceFromDisk(LPWSTR szPath) {
 	if (!bRet)
 		return Error("DeleteResourceFromDisk.DeleteFileW");
 	else 
-		printf("[+] Driver cleaned up from disk\n");		
+		printf("[+] Driver File cleaned up from disk\n");		
 
 	return TRUE;
 	

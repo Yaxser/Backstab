@@ -92,6 +92,7 @@ int PrintInputError(DWORD dwErrorValue) {
 	printf("\t-d,\t\tSpecify path to where ProcExp will be extracted\n");
 	printf("\t-s,\t\tSpecify service name registry key\n");
 	printf("\t-u,\t\t(attempt to) Unload ProcExp driver\n");
+	printf("\t-a,\t\tadds SeDebugPrivilege\n");
 	printf("\t-h,\t\tPrint this menu\n");
 
 	printf("Examples:\n");
@@ -111,12 +112,13 @@ int main(int argc, char* argv[]) {
 
 	int opt;
 	WCHAR szServiceName[MAX_PATH] = L"ProcExp64";
-	WCHAR szProcessName[MAX_PATH] = {0};
+	LPWSTR szProcessName = NULL;
 	WCHAR szDriverPath[MAX_PATH] = {0};
 	HANDLE hProtectedProcess, hConnect = NULL;
 	
 	LPSTR szHandleToClose = NULL;
 	DWORD dwPid = 0;
+	WCHAR ProcessName[MAX_PATH] = {0};
 
 	BOOL
 		isUsingProcessName = FALSE,
@@ -127,11 +129,12 @@ int main(int argc, char* argv[]) {
 		isRequestingHandleList = FALSE,
 		isRequestingProcessKill = FALSE,
 		isRequestingDriverUnload = FALSE,
+		isRequestingSeDebugPrivilege = FALSE,
 		bRet = FALSE
 		;
 
 
-	while ((opt = getopt(argc, argv, "hukln:p:s:d:x:")) != -1)
+	while ((opt = getopt(argc, argv, "hukln:p:s:d:x:a")) != -1)
 	{
 		switch (opt)
 		{
@@ -141,6 +144,8 @@ int main(int argc, char* argv[]) {
 			bRet = GetProcessPIDFromName(charToWChar(optarg), &dwPid);
 			if (!bRet)
 				return PrintInputError(INPUT_ERROR_NONEXISTENT_PID);
+			else
+				szProcessName = charToWChar(optarg);
 			break;
 		}
 		case 'p':
@@ -149,6 +154,7 @@ int main(int argc, char* argv[]) {
 			dwPid = atoi(optarg);
 			if (!verifyPID(dwPid))
 				return PrintInputError(INPUT_ERROR_NONEXISTENT_PID);
+					
 			break;
 		}
 		case 's':
@@ -189,6 +195,11 @@ int main(int argc, char* argv[]) {
 		case 'u':
 		{
 			isRequestingDriverUnload = TRUE;
+			break;
+		}
+		case 'a':
+		{
+			isRequestingSeDebugPrivilege = TRUE;
 		}
 		}
 	}
@@ -197,9 +208,10 @@ int main(int argc, char* argv[]) {
 		printf("[!] You need elevated privileges to run this tool!\n");
 		exit(1);
 	}
-
-	// SetDebugPrivilege();  // in same cases the driver doesn't load .. I leave this here as SE_DEBUG_Privilege seems to partially solving the issue. But it's not clean to need that many privileges.
-
+	if (isRequestingSeDebugPrivilege)
+	{
+		SetDebugPrivilege();
+	}
 
 	/* input sanity checks */
 	if (!isUsingProcessName && !isUsingProcessPID)
@@ -254,7 +266,10 @@ int main(int argc, char* argv[]) {
 	hConnect = ConnectToProcExpDevice();
 	if (hConnect == NULL) {
 
-		return Error("Error: ConnectToProcExpDevice");
+		printf("Error: ConnectToProcExpDevice. Try adding -a to enable SeDebugPrivilege\nLet's Clean up ...\n");
+		UnloadDriver(szDriverPath, szServiceName);
+		DeleteResourceFromDisk(szDriverPath);
+		return Error("Error code was: ConnectToProcExpDevice");
 	}
 	else {
 		printf("[+] Connected to Driver successfully\n");
@@ -272,7 +287,15 @@ int main(int argc, char* argv[]) {
 	/* perform required operation */
 	if (isRequestingHandleList)
 	{
+		printf("\n");
+		if (isUsingProcessName)
+			printf("Process Name : %ws\n", szProcessName);
+		printf("Process PID  : %d\n\n", dwPid);
+		printf(" Handle   Type   Device\n");
+		printf("=======================\n");
+
 		ListProcessHandles(hProtectedProcess);
+		printf("\n");
 	}
 	else if (isRequestingProcessKill) {
 		KillProcessHandles(hProtectedProcess);
@@ -288,7 +311,6 @@ int main(int argc, char* argv[]) {
 	if (isRequestingDriverUnload)
 	{
 		UnloadDriver(szDriverPath, szServiceName);
-		//printf("Handle hCONNECT is %p", hConnect);
 		if (!CloseHandle(hConnect))
 			printf("Error ClosingHandle to driver file %p",hConnect);
 		DeleteResourceFromDisk(szDriverPath);
