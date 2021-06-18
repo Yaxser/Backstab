@@ -4,6 +4,7 @@
 #include "getopt.h"
 #include "ProcExp.h"
 #include "resource.h"
+#include "ppl.h"
 
 
 //https://azrael.digipen.edu/~mmead/www/Courses/CS180/getopt.html
@@ -119,6 +120,12 @@ int main(int argc, char* argv[]) {
 	LPSTR szHandleToClose = NULL;
 	DWORD dwPid = 0;
 	WCHAR ProcessName[MAX_PATH] = {0};
+
+	//K4nfr3
+	DWORD dwProcessProtectionLevel = 0;
+	LPWSTR pwszProcessProtectionName = NULL;
+
+
 
 	BOOL
 		isUsingProcessName = FALSE,
@@ -284,24 +291,34 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	/* perform required operation */
-	if (isRequestingHandleList)
+	if (isRequestingHandleList || isRequestingProcessKill || isUsingSpecificHandle)
 	{
 		printf("\n");
 		if (isUsingProcessName)
-			printf("Process Name : %ws\n", szProcessName);
-		printf("Process PID  : %d\n\n", dwPid);
-		printf(" Handle   Type   Device\n");
-		printf("=======================\n");
+			printf("[*] Process Name : %ws\n", szProcessName);
+		printf("[*] Process PID  : %d\n", dwPid);
 
+		if (!ProcessGetProtectionLevel(dwPid, &dwProcessProtectionLevel))
+			printf("[!] Failed to get the protection level of process with PID %d\n", dwPid);
+		else
+		{
+			ProcessGetProtectionLevelAsString(dwPid, &pwszProcessProtectionName);
+			printf("[*] Process Protection level: %d - %ws\n", dwProcessProtectionLevel, pwszProcessProtectionName);
+		}
+	}
+	/* perform required operation */
+	if (isRequestingHandleList)
+	{
+		printf("[+] Listing Handles\n");
 		ListProcessHandles(hProtectedProcess);
-		printf("\n");
 	}
 	else if (isRequestingProcessKill) {
+		printf("[+] Killing process\n");
 		KillProcessHandles(hProtectedProcess);
 	}
 	else if (isUsingSpecificHandle)
 	{
+		printf("[+] Killing Handle : 0x%x\n", strtol(szHandleToClose, 0, 16));
 		ProcExpKillHandle(dwPid,  strtol(szHandleToClose, 0, 16));
 	}
 	else {

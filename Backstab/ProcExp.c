@@ -72,7 +72,6 @@ BOOL ProcExpKillHandle(DWORD dwPID, ULONGLONG usHandle) {
 	if (!bRet)
 		return Error("ProcExpKillHandle.DeviceIoControl");
 
-
 	return TRUE;
 }
 
@@ -92,7 +91,7 @@ BOOL PrintProtectedHandleInformation(ULONGLONG ulPID, ULONGLONG ulProtectedHandl
 
 	if (ProcExpGetObjectInformation(data, IOCTL_GET_HANDLE_NAME, szName)) {
 		ProcExpGetObjectInformation(data, IOCTL_GET_HANDLE_TYPE, szType);
-		printf("[%#6x] [%ws] %ws\n", data.ulHandle, szType + 2, szName + 2);
+		printf("[%#5llx] [%ws] %ws\n", data.ulHandle, szType + 2, szName + 2);
 	}
 
 	return TRUE;
