@@ -1,6 +1,10 @@
 #include "Processes.h"
 #include "ProcExp.h"
 
+//temp
+#include <tlhelp32.h>
+#include <tchar.h>
+
 PSYSTEM_HANDLE_INFORMATION ReAllocateHandleInfoTableSize(ULONG ulTable_size, PSYSTEM_HANDLE_INFORMATION handleInformationTable) {
 
 	HANDLE hHeap = GetProcessHeap();
@@ -51,6 +55,10 @@ VOID ListProcessHandles(HANDLE hProcess) {
 	PSYSTEM_HANDLE_INFORMATION handleTableInformation = NULL;
 
 	handleTableInformation = GetHandleInformationTable();
+	printf("\n");
+	printf(" Handle  Type   Device\n");
+	printf("=======================\n");
+
 
 	for (ULONG i = 0; i < handleTableInformation->HandleCount; i++)
 	{
@@ -68,6 +76,7 @@ VOID ListProcessHandles(HANDLE hProcess) {
 			PrintProtectedHandleInformation(PID, handleInfo.Handle, handleInfo.Object);
 		}
 	}
+	printf("\n");
 }
 
 

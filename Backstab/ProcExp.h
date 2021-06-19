@@ -59,7 +59,7 @@ BOOL ProcExpKillHandle(DWORD PID, ULONGLONG usHandle);
 /// Connects to ProcExp device for further communication, since the device name is set by the driver, there is nothing to customize here
 /// </summary>
 /// <returns></returns>
-BOOL ConnectToProcExpDevice();
+HANDLE ConnectToProcExpDevice();
 
 
 /// <summary>

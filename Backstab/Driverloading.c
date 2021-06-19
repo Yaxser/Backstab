@@ -84,7 +84,7 @@ BOOL DeleteRegistryKey(LPWSTR szServiceName) {
 	status = RegDeleteKeyExW(HKEY_LOCAL_MACHINE, szRegistryPath, KEY_WOW64_64KEY, 0);
 
 	if (status) {
-		return Error("[OpSec] could not remove service registry key: %d", status);
+		return Error("[OpSec] could not remove service registry key: %d");
 	}
 	return TRUE;
 }
@@ -139,10 +139,25 @@ BOOL UnloadDriver(LPWSTR szPath, LPWSTR szServiceName) {
 
 	ret = _NtUnLoadDriver(&usDriverServiceName);
 	if (ret != STATUS_SUCCESS) {
-		printf("NtUnLoadDriver: %x\n", ret);
+		printf("Error : NtUnLoadDriver: %x\n", ret);
 		DeleteRegistryKey(szServiceName);
 		return FALSE;
 	}
 	DeleteRegistryKey(szServiceName);
+	printf("[+] Driver unloaded successfully\n");
+
 	return TRUE;
+}
+
+BOOL DeleteResourceFromDisk(LPWSTR szPath) {
+	BOOL		bRet;
+
+	bRet = DeleteFileW(szPath);
+	if (!bRet)
+		return Error("DeleteResourceFromDisk.DeleteFileW");
+	else 
+		printf("[+] Driver File cleaned up from disk\n");		
+
+	return TRUE;
+	
 }

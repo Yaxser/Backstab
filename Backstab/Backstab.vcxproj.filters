@@ -36,6 +36,9 @@
     <ClCompile Include="resource.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ppl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Driverloading.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ppl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
