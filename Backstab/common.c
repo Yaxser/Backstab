@@ -7,6 +7,16 @@ BOOL Error(LPSTR szMethod) {
 	return FALSE;
 }
 
+BOOL Success(LPSTR szMethod) {
+	printf("[+] %s:\n", szMethod);
+	return TRUE;
+}
+
+BOOL Info(LPSTR szMethod) {
+	printf("[*] %s\n", szMethod);
+	return TRUE;
+}
+
 PVOID GetLibraryProcAddress(LPSTR szLibraryName, LPSTR szProcName)
 {
 	return GetProcAddress(GetModuleHandleA(szLibraryName), szProcName);

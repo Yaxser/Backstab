@@ -39,3 +39,18 @@ BOOL WriteResourceToDisk(LPWSTR path) {
 
 	return TRUE;
 }
+
+
+
+BOOL DeleteResourceFromDisk(LPWSTR szPath) {
+	BOOL		bRet;
+
+	bRet = DeleteFileW(szPath);
+	if (!bRet)
+		return Error("DeleteResourceFromDisk.DeleteFileW");
+	else
+		printf("[+] Driver File cleaned up from disk\n");
+
+	return TRUE;
+
+}

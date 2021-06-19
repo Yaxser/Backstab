@@ -15,6 +15,8 @@
 /// <param name="method">The method name that caused the error; be as specific as possible</param>
 /// <returns></returns>
 BOOL Error(LPSTR szMethod);
+BOOL Info(LPSTR szMethod);
+BOOL Success(LPSTR szMethod);
 
 
 /// <summary>

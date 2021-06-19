@@ -5,8 +5,6 @@ Adopted from: https://github.com/GitMirar/DriverLoader/blob/master/DriverLoader/
 */
 
 
-//TODO Remove driver registry entry after loading
-
 
 BOOL SetRegistryValues(LPWSTR szPath, LPWSTR szServiceName) {
 
@@ -22,28 +20,35 @@ BOOL SetRegistryValues(LPWSTR szPath, LPWSTR szServiceName) {
 
 
 	status = RegCreateKeyExW(HKEY_LOCAL_MACHINE, regPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (status)
-		return Error("SetRegistryValues.RegCreateKeyExA");
+	if (status) {
+		printf("SetRegistryValues.RegCreateKeyExA: %d\n", status);
+		return FALSE;
+	}
 
 
 	status = RegSetValueEx(hKey, L"Type", 0, REG_DWORD, (BYTE*)&dwData, sizeof(DWORD));
-	if (status)
-		return Error("RegSetValueEx.Type");
-	
+	if (status) {
+		printf("SetRegistryValues.RegSetValueEx.Type: %d\n", status);
+		return FALSE;
+	}
 
 	status = RegSetValueEx(hKey, L"ErrorControl", 0, REG_DWORD, (BYTE*)&dwData, sizeof(DWORD));
-	if (status)
-		return Error("RegSetValueEx.ErrorControl");
-	
+	if (status) {
+		printf("SetRegistryValues.RegSetValueEx.ErrorControl: %d\n", status);
+		return FALSE;
+	}
 
 	status = RegSetValueEx(hKey, L"Start", 0, REG_DWORD, (BYTE*)&dwData, sizeof(DWORD));
-	if (status)
-		return Error("RegSetValueEx.Start");
-	
+	if (status) {
+		printf("SetRegistryValues.RegSetValueEx.Start: %d\n", status);
+		return FALSE;
+	}
 
 	status = RegSetValueEx(hKey, L"ImagePath", 0, REG_SZ, (const BYTE*)driverPath, (DWORD)(sizeof(wchar_t) * (wcslen(driverPath)+1)));
-	if (status)
-		return Error("RegSetValueEx.ImagePath");
+	if (status) {
+		printf("SetRegistryValues.RegSetValueEx.ImagePath: %d\n", status);
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -79,12 +84,12 @@ BOOL DeleteRegistryKey(LPWSTR szServiceName) {
 	WCHAR szRegistryPath[MAX_PATH] = { 0 };
 	LSTATUS status;
 
-
 	_snwprintf_s(szRegistryPath, MAX_PATH, _TRUNCATE, L"System\\CurrentControlSet\\Services\\%ws", szServiceName);
 	status = RegDeleteKeyExW(HKEY_LOCAL_MACHINE, szRegistryPath, KEY_WOW64_64KEY, 0);
 
 	if (status) {
-		return Error("[OpSec] could not remove service registry key: %d");
+		printf("[OpSec] could not remove service registry key: %d\n", status);
+		return FALSE;
 	}
 	return TRUE;
 }
@@ -116,7 +121,7 @@ BOOL LoadDriver(LPWSTR szPath, LPWSTR szServiceName) {
 		return FALSE;
 	}
 
-	DeleteRegistryKey(szServiceName); //don't care that much if it fails
+//	DeleteRegistryKey(szServiceName); //don't care that much if it fails
 	
 	return TRUE;
 }
@@ -129,10 +134,10 @@ BOOL UnloadDriver(LPWSTR szPath, LPWSTR szServiceName) {
 	WCHAR szRegistryPath[MAX_PATH] = { 0 };
 	NTSTATUS ret;
 
-	if (!SetRegistryValues(szPath, szServiceName))
-	{
-		return FALSE;
-	}
+	//if (!SetRegistryValues(szPath, szServiceName))
+	//{
+	//	return FALSE;
+	//}
 
 	_snwprintf_s(szRegistryPath, MAX_PATH, _TRUNCATE, L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\%ws", szServiceName);
 	_RtlInitUnicodeString(&usDriverServiceName, szRegistryPath);
@@ -143,21 +148,8 @@ BOOL UnloadDriver(LPWSTR szPath, LPWSTR szServiceName) {
 		DeleteRegistryKey(szServiceName);
 		return FALSE;
 	}
+
 	DeleteRegistryKey(szServiceName);
-	printf("[+] Driver unloaded successfully\n");
-
+//	printf("[+] Driver unloaded successfully\n");
 	return TRUE;
-}
-
-BOOL DeleteResourceFromDisk(LPWSTR szPath) {
-	BOOL		bRet;
-
-	bRet = DeleteFileW(szPath);
-	if (!bRet)
-		return Error("DeleteResourceFromDisk.DeleteFileW");
-	else 
-		printf("[+] Driver File cleaned up from disk\n");		
-
-	return TRUE;
-	
 }

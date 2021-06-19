@@ -32,5 +32,3 @@ BOOL LoadDriver(LPWSTR szPath, LPWSTR szServiceName);
 BOOL UnloadDriver(LPWSTR szDriverPath, LPWSTR szServiceName);
 
 
-/// Delete driver from Disk
-BOOL DeleteResourceFromDisk(LPWSTR szPath);
