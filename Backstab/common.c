@@ -8,7 +8,7 @@ BOOL Error(LPSTR szMethod) {
 }
 
 BOOL Success(LPSTR szMethod) {
-	printf("[+] %s:\n", szMethod);
+	printf("[+] %s\n", szMethod);
 	return TRUE;
 }
 

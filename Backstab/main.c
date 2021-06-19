@@ -255,7 +255,7 @@ int main(int argc, char* argv[]) {
 		return Error("Could not load driver");
 	}
 	else {
-		Success("Driver loaded as %ws\n", szServiceName);
+		printf("Driver loaded as %ws\n", szServiceName);
 		isRequestingDriverUnload = TRUE;  // Set to unload the driver at the end of the operation
 
 	}
@@ -287,10 +287,10 @@ int main(int argc, char* argv[]) {
 	{
 		printf("\n");
 		if (isUsingProcessName) { 
-			printf("Process Name : %ws", szProcessName); 
+			printf("Process Name: %ws\n", szProcessName); 
 		}
 		
-		printf("[*] Process PID  : %d\n", dwPid);
+		printf("[*] Process PID: %d\n", dwPid);
 		if (!ProcessGetProtectionLevel(dwPid, &dwProcessProtectionLevel))
 			printf("[!] Failed to get the protection level of process with PID %d\n", dwPid);
 		else
@@ -309,11 +309,13 @@ int main(int argc, char* argv[]) {
 	else if (isRequestingProcessKill) {
 		Info("Killing process\n");
 		KillProcessHandles(hProtectedProcess);
+		Success("Killing process succeeded");
 	}
 	else if (isUsingSpecificHandle)
 	{
-		Info("Killing Handle : 0x%x\n", strtol(szHandleToClose, 0, 16));
+		Info("Closing Handle : 0x%x\n", strtol(szHandleToClose, 0, 16));
 		ProcExpKillHandle(dwPid,  strtol(szHandleToClose, 0, 16));
+		Success("Closing handle succeeded");
 	}
 	else {
 		printf("Please select an operation\n");

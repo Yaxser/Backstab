@@ -144,7 +144,7 @@ BOOL UnloadDriver(LPWSTR szPath, LPWSTR szServiceName) {
 
 	ret = _NtUnLoadDriver(&usDriverServiceName);
 	if (ret != STATUS_SUCCESS) {
-		printf("Error : NtUnLoadDriver: %x\n", ret);
+	//	printf("Error : NtUnLoadDriver: %x\n", ret);
 		DeleteRegistryKey(szServiceName);
 		return FALSE;
 	}
